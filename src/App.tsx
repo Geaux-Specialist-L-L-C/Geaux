@@ -1,13 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import { validateEnvConfig } from './utils/config';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Assessment from './components/assessment/Assessment';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import SignUp from './components/auth/SignUp';
+import SignIn from './components/auth/SignIn';
+import Dashboard from './components/dashboard/Dashboard';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { session } = useAuth();
+  if (!session) return <Navigate to="/" />;
+  return <>{children}</>;
+};
 
 function App() {
-  const [showAssessment, setShowAssessment] = useState(false);
   const [isConfigValid, setIsConfigValid] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,9 +42,11 @@ function App() {
 
   if (!isConfigValid) {
     return (
-      <div className="min-h-screen bg-red-50 p-4">
-        <h1 className="text-red-600">Configuration Error</h1>
-        <p>Please check your environment variables and try again.</p>
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="text-red-600 text-center">
+          <h1 className="text-2xl font-bold">Configuration Error</h1>
+          <p>Please check your environment variables.</p>
+        </div>
       </div>
     );
   }
@@ -43,16 +54,34 @@ function App() {
   return (
     <AuthProvider>
       <ErrorBoundary>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <div className="pt-16">
-            {showAssessment ? (
-              <Assessment />
-            ) : (
-              <Hero />
-            )}
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="pt-16">
+              <Routes>
+                <Route path="/" element={<Hero />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route 
+                  path="/assessment" 
+                  element={
+                    <ProtectedRoute>
+                      <Assessment />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+              </Routes>
+            </div>
           </div>
-        </div>
+        </Router>
       </ErrorBoundary>
     </AuthProvider>
   );

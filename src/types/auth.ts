@@ -1,9 +1,10 @@
 // src/types/auth.ts
+import { User } from '@supabase/supabase-js';
+
 export interface UserSession {
-  id: string;
-  email?: string;
-  name?: string;
-  avatar_url?: string;
+  user: User | null;
+  access_token: string | null;
+  refresh_token: string | null;
 }
 
 export interface AuthState {

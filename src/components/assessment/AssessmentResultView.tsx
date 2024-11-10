@@ -1,9 +1,10 @@
+// src/components/assessment/AssessmentResultView.tsx
 import React from 'react';
 import { Brain, Target, Sparkles } from 'lucide-react';
-import type { AssessmentResult as ResultType } from '../../types/assessment';
+import type { AssessmentResult } from '../../types/assessment';
 
 interface ResultProps {
-  result: ResultType;
+  result: AssessmentResult;
   onRetake: () => void;
 }
 
@@ -47,7 +48,7 @@ export default function AssessmentResultView({ result, onRetake }: ResultProps) 
           </div>
         </div>
 
-        <div className="bg-gray-50 p-6 rounded-lg">
+        <div className="bg-gray-50 p-6 rounded-lg mb-8">
           <h3 className="text-xl font-semibold mb-4">Personalized Recommendations</h3>
           <ul className="space-y-3">
             {result.recommendations.map((recommendation, index) => (

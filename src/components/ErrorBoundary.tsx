@@ -2,35 +2,43 @@
 import React from 'react';
 import { logError } from '../utils/errorLogging';
 
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; errorInfo: string }
-> {
-  constructor(props: { children: React.ReactNode }) {
+interface Props {
+  children: React.ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, errorInfo: '' };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, errorInfo: error.message };
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     logError(error, errorInfo);
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       return (
-        <div className="p-4 bg-red-100 text-red-700">
-          <h2>Something went wrong.</h2>
-          <details className="mt-2">
-            <summary>Error details</summary>
-            {this.state.errorInfo}
-          </details>
+        <div className="p-4 bg-red-100 rounded-lg">
+          <h2 className="text-red-800 font-bold">Something went wrong</h2>
+          {process.env.NODE_ENV === 'development' && (
+            <pre className="mt-2 text-sm text-red-600">
+              {this.state.error?.message}
+            </pre>
+          )}
         </div>
       );
     }
+
     return this.props.children;
   }
 }
